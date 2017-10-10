@@ -96,7 +96,7 @@ void ofxURG::threadedFunction(){
 		}
 
 		for(size_t i=0; i<numSteps; i++){
-			dataThread[i].degrees = urg_index2deg(&urg, i*getStepSize())-90;
+			dataThread[i].degrees = ofRadToDeg(urg_index2rad(&urg, i*getStepSize())-ofDegToRad(90));
 			dataThread[i].distance = dataRaw[i];
 		}
 
@@ -139,7 +139,7 @@ void ofxURG::drawRadius(){
 
 	ofTranslate(ofGetWidth()*.5, ofGetHeight()*.5);
 
-	ofScale(getDrawScale());
+    ofScale(getDrawScale(), getDrawScale());
 
 	ofSetLineWidth(2);
 

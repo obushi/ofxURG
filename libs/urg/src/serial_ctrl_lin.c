@@ -1,8 +1,8 @@
 /*!
   \file
-  \brief ƒVƒŠƒAƒ‹’ÊM (Linux, Mac À‘•)
+  \brief ï¿½Vï¿½ï¿½ï¿½Aï¿½ï¿½ï¿½ÊM (Linux, Mac ï¿½ï¿½ï¿½ï¿½)
 
-  Serial Communication Interface §Œä
+  Serial Communication Interface ï¿½ï¿½ï¿½ï¿½
 
 
   \author Satofumi KAMIMURA
@@ -49,7 +49,7 @@ void serial_initialize(serial_t *serial)
 }
 
 
-/* Ú‘± */
+/* ï¿½Ú‘ï¿½ */
 int serial_connect(serial_t *serial, const char *device, long baudrate)
 {
   int flags = 0;
@@ -58,11 +58,11 @@ int serial_connect(serial_t *serial, const char *device, long baudrate)
   serial_initialize(serial);
 
 #ifndef MAC_OS
-  enum { O_EXLOCK = 0x0 }; /* Linux ‚Å‚Íg‚¦‚È‚¢‚Ì‚Åƒ_ƒ~[‚ğì¬‚µ‚Ä‚¨‚­ */
+  enum { O_EXLOCK = 0x0 }; /* Linux ï¿½Å‚Ígï¿½ï¿½ï¿½È‚ï¿½ï¿½Ì‚Åƒ_ï¿½~ï¿½[ï¿½ï¿½ì¬ï¿½ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½ */
 #endif
   serial->fd_ = open(device, O_RDWR | O_EXLOCK | O_NONBLOCK | O_NOCTTY);
   if (serial->fd_ < 0) {
-    /* Ú‘±‚É¸”s */
+    /* ï¿½Ú‘ï¿½ï¿½Éï¿½ï¿½s */
     strerror_r(errno, serial->error_string_, SerialErrorStringSize);
     return SerialConnectionFail;
   }
@@ -70,7 +70,7 @@ int serial_connect(serial_t *serial, const char *device, long baudrate)
   flags = fcntl(serial->fd_, F_GETFL, 0);
   fcntl(serial->fd_, F_SETFL, flags & ~O_NONBLOCK);
 
-  /* ƒVƒŠƒAƒ‹’ÊM‚Ì‰Šú‰» */
+  /* ï¿½Vï¿½ï¿½ï¿½Aï¿½ï¿½ï¿½ÊMï¿½Ìï¿½ï¿½ï¿½ï¿½ï¿½ */
   tcgetattr(serial->fd_, &serial->sio_);
   serial->sio_.c_iflag = 0;
   serial->sio_.c_oflag = 0;
@@ -81,20 +81,20 @@ int serial_connect(serial_t *serial, const char *device, long baudrate)
   serial->sio_.c_cc[VMIN] = 0;
   serial->sio_.c_cc[VTIME] = 0;
 
-  /* ƒ{[ƒŒ[ƒg‚Ì•ÏX */
+  /* ï¿½{ï¿½[ï¿½ï¿½ï¿½[ï¿½gï¿½Ì•ÏX */
   ret = serial_setBaudrate(serial, baudrate);
   if (ret < 0) {
     return ret;
   }
 
-  /* ƒVƒŠƒAƒ‹§Œä\‘¢‘Ì‚Ì‰Šú‰» */
+  /* ï¿½Vï¿½ï¿½ï¿½Aï¿½ï¿½ï¿½ï¿½ï¿½ï¿½\ï¿½ï¿½ï¿½Ì‚Ìï¿½ï¿½ï¿½ï¿½ï¿½ */
   serial->has_last_ch_ = False;
 
   return 0;
 }
 
 
-/* Ø’f */
+/* ï¿½Ø’f */
 void serial_disconnect(serial_t *serial)
 {
   if (serial->fd_ >= 0) {
@@ -110,7 +110,7 @@ int serial_isConnected(const serial_t *serial)
 }
 
 
-/* ƒ{[ƒŒ[ƒg‚Ìİ’è */
+/* ï¿½{ï¿½[ï¿½ï¿½ï¿½[ï¿½gï¿½Ìİ’ï¿½ */
 int serial_setBaudrate(serial_t *serial, long baudrate)
 {
   long baudrate_value = -1;
@@ -140,15 +140,11 @@ int serial_setBaudrate(serial_t *serial, long baudrate)
     baudrate_value = B115200;
     break;
 
-  case 500000:
-    baudrate_value = B500000;
-    break;
-
   default:
     return SerialSetBaudrateFail;
   }
 
-  /* ƒ{[ƒŒ[ƒg•ÏX */
+  /* ï¿½{ï¿½[ï¿½ï¿½ï¿½[ï¿½gï¿½ÏX */
   cfsetospeed(&serial->sio_, baudrate_value);
   cfsetispeed(&serial->sio_, baudrate_value);
   tcsetattr(serial->fd_, TCSADRAIN, &serial->sio_);
@@ -158,7 +154,7 @@ int serial_setBaudrate(serial_t *serial, long baudrate)
 }
 
 
-/* ‘—M */
+/* ï¿½ï¿½ï¿½M */
 int serial_send(serial_t *serial, const char *data, int data_size)
 {
   if (! serial_isConnected(serial)) {
@@ -173,7 +169,7 @@ static int waitReceive(serial_t* serial, int timeout)
   fd_set rfds;
   struct timeval tv;
 
-  // ƒ^ƒCƒ€ƒAƒEƒgİ’è
+  // ï¿½^ï¿½Cï¿½ï¿½ï¿½Aï¿½Eï¿½gï¿½İ’ï¿½
   FD_ZERO(&rfds);
   FD_SET(serial->fd_, &rfds);
 
@@ -182,7 +178,7 @@ static int waitReceive(serial_t* serial, int timeout)
 
   if (select(serial->fd_ + 1, &rfds, NULL, NULL,
              (timeout < 0) ? NULL : &tv) <= 0) {
-    /* ƒ^ƒCƒ€ƒAƒEƒg”­¶ */
+    /* ï¿½^ï¿½Cï¿½ï¿½ï¿½Aï¿½Eï¿½gï¿½ï¿½ï¿½ï¿½ */
     return 0;
   }
   return 1;
@@ -209,7 +205,7 @@ static int internal_receive(char data[], int data_size_max,
     require_n = data_size_max - filled;
     read_n = read(serial->fd_, &data[filled], require_n);
     if (read_n <= 0) {
-      /* “Ç‚İo‚µƒGƒ‰[BŒ»İ‚Ü‚Å‚ÌóM“à—e‚Å–ß‚é */
+      /* ï¿½Ç‚İoï¿½ï¿½ï¿½Gï¿½ï¿½ï¿½[ï¿½Bï¿½ï¿½ï¿½İ‚Ü‚Å‚Ìï¿½Mï¿½ï¿½eï¿½Å–ß‚ï¿½ */
       break;
     }
     filled += read_n;
@@ -218,7 +214,7 @@ static int internal_receive(char data[], int data_size_max,
 }
 
 
-/* óM */
+/* ï¿½ï¿½M */
 int serial_recv(serial_t *serial, char* data, int data_size_max, int timeout)
 {
   int filled;
@@ -229,7 +225,7 @@ int serial_recv(serial_t *serial, char* data, int data_size_max, int timeout)
     return 0;
   }
 
-  /* ‘‚«–ß‚µ‚½‚P•¶š‚ª‚ ‚ê‚ÎA‘‚«o‚· */
+  /* ï¿½ï¿½ï¿½ï¿½ï¿½ß‚ï¿½ï¿½ï¿½ï¿½Pï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ÎAï¿½ï¿½ï¿½ï¿½ï¿½oï¿½ï¿½ */
   filled = 0;
   if (serial->has_last_ch_ != False) {
     data[0] = serial->last_ch_;
@@ -247,7 +243,7 @@ int serial_recv(serial_t *serial, char* data, int data_size_max, int timeout)
   buffer_size = ring_size(&serial->ring_);
   read_n = data_size_max - filled;
   if (buffer_size < read_n) {
-    // ƒŠƒ“ƒOƒoƒbƒtƒ@“à‚Ìƒf[ƒ^‚Å‘«‚è‚È‚¯‚ê‚ÎAƒf[ƒ^‚ğ“Ç‚İ‘«‚·
+    // ï¿½ï¿½ï¿½ï¿½ï¿½Oï¿½oï¿½bï¿½tï¿½@ï¿½ï¿½Ìƒfï¿½[ï¿½^ï¿½Å‘ï¿½ï¿½ï¿½È‚ï¿½ï¿½ï¿½ÎAï¿½fï¿½[ï¿½^ï¿½ï¿½Ç‚İ‘ï¿½ï¿½ï¿½
     char buffer[RingBufferSize];
     int n = internal_receive(buffer,
                              ring_capacity(&serial->ring_) - buffer_size,
@@ -256,7 +252,7 @@ int serial_recv(serial_t *serial, char* data, int data_size_max, int timeout)
   }
   buffer_size = ring_size(&serial->ring_);
 
-  // ƒŠƒ“ƒOƒoƒbƒtƒ@“à‚Ìƒf[ƒ^‚ğ•Ô‚·
+  // ï¿½ï¿½ï¿½ï¿½ï¿½Oï¿½oï¿½bï¿½tï¿½@ï¿½ï¿½Ìƒfï¿½[ï¿½^ï¿½ï¿½Ô‚ï¿½
   if (read_n > buffer_size) {
     read_n = buffer_size;
   }
@@ -265,14 +261,14 @@ int serial_recv(serial_t *serial, char* data, int data_size_max, int timeout)
     filled += read_n;
   }
 
-  // ƒf[ƒ^‚ğƒ^ƒCƒ€ƒAƒEƒg•t‚«‚Å“Ç‚İo‚·
+  // ï¿½fï¿½[ï¿½^ï¿½ï¿½^ï¿½Cï¿½ï¿½ï¿½Aï¿½Eï¿½gï¿½tï¿½ï¿½ï¿½Å“Ç‚İoï¿½ï¿½
   filled += internal_receive(&data[filled],
                              data_size_max - filled, serial, timeout);
   return filled;
 }
 
 
-/* ‚P•¶š‘‚«–ß‚· */
+/* ï¿½Pï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ß‚ï¿½ */
 void serial_ungetc(serial_t *serial, char ch)
 {
   serial->has_last_ch_ = True;
